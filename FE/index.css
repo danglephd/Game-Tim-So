@@ -1,0 +1,51 @@
+#canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+}
+
+.numberCircle {
+    border-radius: 50%;
+    position: absolute;
+    background: #fff;
+    color: #000;
+    text-align: center;
+
+    font: 13px Arial, sans-serif;
+}
+
+.hidden {
+    opacity: 0;
+    -webkit-transition: opacity 0.5s ease;
+    -moz-transition: opacity 0.5s ease;
+    -ms-transition: opacity 0.5s ease;
+    -o-transition: opacity 0.5s ease;
+    transition: opacity 0.4s ease;
+    transition-delay: 0.1s;
+}
+
+.selected {
+    background: #000 !important;
+    display: none;
+}
+
+.numberCircle:hover:after {
+    -webkit-transform: scale(0.85);
+    -moz-transform: scale(0.85);
+    -ms-transform: scale(0.85);
+    transform: scale(0.85);
+}
+
+.numberCircle:hover {
+    box-shadow: 0 0 0 1.5px rgba(200, 0, 0, 0.4);
+    cursor: pointer;
+    /* color: #fff; */
+}
+
+html,
+body {
+    overflow: hidden;
+}

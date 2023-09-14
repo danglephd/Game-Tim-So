@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <h1 id="vn_number">HTML5 Canvas</h1>
+    <h1 id="vn_timer">00:00:00</h1>
+    <div id="gameZone"></div>
+    <!-- <div class="numberCircle">30</div> -->
+    <canvas id="myCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("myCanvas");
+        canvas.width = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) - 20;
+        canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight) - 100;
+        const ctx = canvas.getContext("2d");
+        const cR = 25;
+        const zoomBoard = 20;
+        const numberLength = 100;
+        let lookNumber = 1;
+        const numberArray = [];
+        const start = new Date().getTime();
+
+        var x = setInterval(function () {
+
+            // Get today's date and time
+            let now = new Date().getTime();
+            let addTime = 0; // 3595;
+
+            // Find the distance between now and the count down date
+            let distance = addTime + ((Date.now() - start) / 1000) | 0;
+
+            let hours = (distance / 3600) | 0;
+            let minutes = ((distance / 60) | 0) - (hours * 60);
+            let seconds = (distance % 60) | 0;
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            // console.log('>>>distance', distance, seconds, minutes);
+            // Display the result in the element with id="demo"
+            document.getElementById("vn_timer").innerHTML = `${hours}:${minutes}:${seconds}`;
+
+            if (hours >= 1) {
+                clearInterval(x);
+            }
+
+        }, 1000);
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+            WIDTH = canvas.width;
+            HEIGHT = canvas.height;
+
+            clearScreen();
+        }
+
+        function InitNumberArray() {
+            let j = 0, i = 0, temp;
+            for (i = 0; i < numberLength; i++) {
+                numberArray[i] = i + 1;
+            }
+            for (i = 0; i < numberLength; i++) {
+                j = i + Math.floor(Math.random() * numberLength - i);
+                temp = numberArray[i];
+                numberArray[i] = numberArray[j];
+                numberArray[j] = temp;
+            }
+
+        }
+
+        function drawCircle(ctx, c) {
+            // console.log('>>>c ', c);
+            ctx.beginPath();
+            ctx.arc(c.rX, c.rY, c.R, 0, 2 * Math.PI, false);
+            ctx.fillStyle = c.color;
+            ctx.fill();
+        }
+
+        function hsv_to_rgb_By_Int(h, s, v) {
+            let r = 0, g = 0, b = 0, count = 0;
+            randColor = 6;
+
+            // console.log('>>>HSV', h, s, v, h * 24);
+
+            try {
+                do {
+                    let h_i = Math.round(h * randColor);
+                    let f = (h * 6 - h_i);
+                    let p = v * (1 - s);
+                    let q = v * (1 - f * s);
+                    let t = v * (1 - (1 - f) * s);
+
+                    switch (h_i) {
+
+                        case 24:
+                        case 0:
+                            r = v;
+                            g = t;
+                            b = p;
+                            break;
+                        case 1:
+                            r = q;
+                            g = v;
+                            b = p;
+                            break;
+                        case 2:
+                            r = p;
+                            g = v;
+                            b = t;
+                            break;
+                        case 3:
+                            r = p;
+                            g = q;
+                            b = v;
+                            break;
+                        case 4:
+                            r = t;
+                            g = p;
+                            b = v;
+                            break;
+                        case 5:
+                            r = v;
+                            g = p;
+                            b = q;
+                            break;
+                        case 6:
+                            r = p;
+                            g = t;
+                            b = v;
+                            break;
+                        case 7:
+                            r = v;
+                            g = t;
+                            b = q;
+                            break;
+                        case 8:
+                            r = v;
+                            g = q;
+                            b = t;
+                            break;
+                        case 9:
+                            r = t;
+                            g = v;
+                            b = q;
+                            break;
+                        case 10:
+                            r = t;
+                            g = q;
+                            b = v;
+                            break;
+                        case 11:
+                            r = q;
+                            g = v;
+                            b = t;
+                            break;
+                        case 12:
+                            r = q;
+                            g = t;
+                            b = v;
+                            break;
+                        case 13:
+                            r = v;
+                            g = p;
+                            b = t;
+                            break;
+                        case 14:
+                            r = v;
+                            g = q;
+                            b = p;
+                            break;
+                        case 15:
+                            r = p;
+                            g = v;
+                            b = q;
+                            break;
+                        case 16:
+                            r = t;
+                            g = v;
+                            b = p;
+                            break;
+                        case 17:
+                            r = q;
+                            g = p;
+                            b = t;
+                            break;
+                        case 18:
+                            r = q;
+                            g = p;
+                            b = v;
+                            break;
+                        case 19:
+                            r = t;
+                            g = p;
+                            b = q;
+                            break;
+                        case 20:
+                            r = t;
+                            g = q;
+                            b = p;
+                            break;
+                        case 21:
+                            r = p;
+                            g = t;
+                            b = q;
+                            break;
+                        case 22:
+                            r = p;
+                            g = q;
+                            b = t;
+                            break;
+                        case 23:
+                            r = q;
+                            g = t;
+                            b = p;
+                            break;
+                    }
+
+                    if (r == 0 && g == 0 && b == 0) {
+                        console.log('>>>Count: ', h_i);
+                    }
+                } while (r == 0 && g == 0 && b == 0 && count++ < 3)
+            }
+            catch (exx) {
+                console.log('Error: ', exx);
+                return `rgb(0, 0 , 0)`;
+            }
+
+            let floatV = (r * 256) + "";
+            // console.log('>>>>floatV ', floatV);
+            let red = floatV.includes(".") ? floatV.substring(0, floatV.indexOf(".")) : floatV;
+            floatV = (g * 256) + "";
+            let green = floatV.includes(".") ? floatV.substring(0, floatV.indexOf(".")) : floatV;
+            floatV = (b * 256) + "";
+            let blue = floatV.includes(".") ? floatV.substring(0, floatV.indexOf(".")) : floatV;
+            return `rgb(${red}, ${green}, ${blue})`;
+        }
+
+
+        function RandCircle(i, centerx, centery, value, zoom, cR) {
+
+            // console.log(">>>>", i, centerx, centery, value, zoom, cR);
+
+            let goldenRatio_phi = 0.618033988749895;
+            let s = 0.5;
+            let v = 0.99;
+            let h = 0.99;
+            let r = Math.sqrt(i);
+            let theta = i * 2 * Math.PI / (goldenRatio_phi * goldenRatio_phi);
+
+            let x = (Math.cos(theta) * r) * zoom;
+            let y = (Math.sin(theta) * r) * zoom;
+            // console.log(">>>>", x, y);
+            let rX = Math.round((centerx) + x);
+            let rY = Math.round((centery) + y);
+
+            if (rX - cR < 0 || rY - cR < 0 || rX + cR > canvas.width || rY + cR > canvas.height) {
+                console.log(">>>>NUll");
+                return null;
+            }
+
+            let c = {
+                R: cR,
+                rX: rX,
+                rY: rY,
+                value: value,
+                color: hsv_to_rgb_By_Int(Math.random(), s, v)
+            };
+            return c;
+        }
+
+        ctx.beginPath();
+
+
+        let centerx = canvas.width / 2;
+        let centery = canvas.height / 2;
+        let j = 0, i = 0, k = 0;
+
+        InitNumberArray();
+
+        for (j = 0, i = j + 1; j < numberLength || k < numberLength; j++, i = j + 1) {
+            let c = RandCircle(i, centerx, centery, numberArray[k], zoomBoard, cR);
+
+            if (c != null) {
+                let node = document.createElement("div");
+                let textnode = document.createTextNode(c.value);
+                node.appendChild(textnode);
+                node.classList.add('numberCircle');
+                // node.setAttribute('background-color', c.color);
+                node.style.backgroundColor = c.color;
+                node.style.top = (c.rY + 80) + 'px';
+                node.style.right = c.rX + 'px';
+                node.style.width = c.R + 'px';
+                node.style.height = c.R + 'px';
+                node.style.lineHeight = c.R + 'px';
+
+                node.addEventListener('click', function (event) {
+                    // do something
+                    // console.log('>>>>', this.innerHTML);
+                    var node = document.getElementById('vn_number');
+
+                    if (this.innerHTML == `${lookNumber}`) {
+                        // this.classList.add('selected');
+                        this.classList.add('hidden');
+                        lookNumber++;
+                        node.innerHTML = lookNumber;
+                        // If the count down is finished, write some text
+                        if (lookNumber > numberLength) {
+                            clearInterval(x);
+                            document.getElementById("vn_timer").innerHTML += "Finish";
+                        }
+                    }
+
+                });
+                document.getElementById("gameZone").appendChild(node);
+                // mapNumberBall.put(c.getValue(), c);
+                // drawCircle(ctx, c)
+                k++;
+            }
+            if (j > numberLength * 10) {
+                break;
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
