@@ -2,11 +2,65 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="index.css">
+    <!-- <link rel="stylesheet" href="./index.css"> -->
+
+    <style>
+        #canvas {
+            position: fixed;
+            left: 0;
+            top: 0;
+
+            width: -webkit-fill-available;
+            height: -webkit-fill-available;
+        }
+
+        .numberCircle {
+            border-radius: 50%;
+            position: absolute;
+            background: #fff;
+            color: #000;
+            text-align: center;
+
+            font: 13px Arial, sans-serif;
+        }
+
+        .hidden {
+            opacity: 0;
+            -webkit-transition: opacity 0.5s ease;
+            -moz-transition: opacity 0.5s ease;
+            -ms-transition: opacity 0.5s ease;
+            -o-transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
+            transition-delay: 0.1s;
+        }
+
+        .selected {
+            background: #000 !important;
+            display: none;
+        }
+
+        .numberCircle:hover:after {
+            -webkit-transform: scale(0.85);
+            -moz-transform: scale(0.85);
+            -ms-transform: scale(0.85);
+            transform: scale(0.85);
+        }
+
+        .numberCircle:hover {
+            box-shadow: 0 0 0 1.5px rgba(200, 0, 0, 0.4);
+            cursor: pointer;
+            /* color: #fff; */
+        }
+
+        html,
+        body {
+            overflow: hidden;
+        }
+    </style>
 </head>
 
 <body>
-    <h1 id="vn_number">HTML5 Canvas</h1>
+    <h1 id="vn_number">1</h1>
     <h1 id="vn_timer">00:00:00</h1>
     <div id="gameZone"></div>
     <!-- <div class="numberCircle">30</div> -->
@@ -16,9 +70,9 @@
         canvas.width = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) - 20;
         canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight) - 100;
         const ctx = canvas.getContext("2d");
-        const cR = 25;
-        const zoomBoard = 20;
-        const numberLength = 100;
+        const cR = 40;
+        const zoomBoard = 40;
+        const numberLength = 300;
         let lookNumber = 1;
         const numberArray = [];
         const start = new Date().getTime();
@@ -242,8 +296,9 @@
         }
 
 
-        function RandCircle(i, centerx, centery, value, zoom, cR) {
+        function RandCircle(i, centerx, centery, value, zoom, cR, delta) {
 
+            i += delta;
             // console.log(">>>>", i, centerx, centery, value, zoom, cR);
 
             let goldenRatio_phi = 0.618033988749895;
@@ -260,7 +315,7 @@
             let rY = Math.round((centery) + y);
 
             if (rX - cR < 0 || rY - cR < 0 || rX + cR > canvas.width || rY + cR > canvas.height) {
-                console.log(">>>>NUll");
+                // console.log(">>>>NUll", i);
                 return null;
             }
 
@@ -283,8 +338,9 @@
 
         InitNumberArray();
 
+        let delta = 0;
         for (j = 0, i = j + 1; j < numberLength || k < numberLength; j++, i = j + 1) {
-            let c = RandCircle(i, centerx, centery, numberArray[k], zoomBoard, cR);
+            let c = RandCircle(i, centerx, centery, numberArray[k], zoomBoard, cR, delta);
 
             if (c != null) {
                 let node = document.createElement("div");
@@ -321,6 +377,10 @@
                 // mapNumberBall.put(c.getValue(), c);
                 // drawCircle(ctx, c)
                 k++;
+            }
+            else {
+                delta++;
+                console.log('>>>>c is null', i);
             }
             if (j > numberLength * 10) {
                 break;
