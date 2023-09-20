@@ -5,6 +5,19 @@
     <!-- <link rel="stylesheet" href="./index.css"> -->
 
     <style>
+        /*         
+        // Chrome, Safari, Edge, Opera 
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        // Firefox 
+        input[type=number] {
+            -moz-appearance: textfield;
+        } */
+
         #canvas {
             position: fixed;
             left: 0;
@@ -12,6 +25,8 @@
 
             width: -webkit-fill-available;
             height: -webkit-fill-available;
+            border-style: dashed;
+            border-width: 1rem;
         }
 
         .numberCircle {
@@ -52,32 +67,70 @@
             /* color: #fff; */
         }
 
-        html,
+        /* html,
         body {
             overflow: hidden;
-        }
+        } */
     </style>
 </head>
 
 <body>
-    <h1 id="vn_number">1</h1>
+    <table>
+        <tr>
+            <td>
+                Number to Find
+            </td>
+            <td>
+                Zoom
+            </td>
+            <td>
+                R
+            </td>
+            <td>
+                Looking for:
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="number" name="numberLength" id="vn_numberLength" value=200>
+            </td>
+            <td>
+                <input type="number" name="zoomBoard" id="zoomBoard" value=40>
+            </td>
+            <td>
+                <input type="number" name="cR" id="cR" value=40>
+            </td>
+            <td>
+                <h1 id="vn_number" style="text-align: center;">1</h1>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button onclick="startCounting()">
+                    Start
+                </button>
+            </td>
+            <td>
+                <button onclick="stopCounting()">
+                    Stop
+                </button>
+            </td>
+        </tr>
+    </table>
     <h1 id="vn_timer">00:00:00</h1>
     <div id="gameZone"></div>
     <!-- <div class="numberCircle">30</div> -->
     <canvas id="myCanvas"></canvas>
     <script>
+        let zoomBoard = 40;
+        let numbLength = 200;
+        let cR = 40;
         const canvas = document.getElementById("myCanvas");
-        canvas.width = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) - 20;
-        canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight) - 100;
-        const ctx = canvas.getContext("2d");
-        const cR = 40;
-        const zoomBoard = 40;
-        const numberLength = 300;
-        let lookNumber = 1;
-        const numberArray = [];
-        const start = new Date().getTime();
+        let numberArray = [];
+        let x = null;
+        let start = new Date().getTime();
 
-        var x = setInterval(function () {
+        function gameTimer() {
 
             // Get today's date and time
             let now = new Date().getTime();
@@ -94,7 +147,6 @@
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
 
-            // console.log('>>>distance', distance, seconds, minutes);
             // Display the result in the element with id="demo"
             document.getElementById("vn_timer").innerHTML = `${hours}:${minutes}:${seconds}`;
 
@@ -102,7 +154,104 @@
                 clearInterval(x);
             }
 
-        }, 1000);
+        }
+
+        function startCounting() {
+            start = new Date().getTime();
+            document.getElementById("vn_timer").innerHTML = `00:00:00`;
+            Init();
+            if (x) {
+                clearInterval(x);
+            }
+            x = setInterval(gameTimer, 1000);
+        }
+
+        function stopCounting() {
+            document.getElementById("vn_timer").innerHTML = `00:00:00`;
+            document.getElementById("gameZone").innerHTML = '';
+            document.getElementById("vn_number").innerHTML = '1';
+            clearInterval(x);
+        }
+
+        function Init() {
+            canvas.width = (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth) - 20;
+            canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight) - 100;
+            const ctx = canvas.getContext("2d");
+            let lookNumber = 1;
+            cR = parseInt(document.getElementById("cR").value);
+            zoomBoard = parseInt(document.getElementById("zoomBoard").value);
+            numbLength = parseInt(document.getElementById("vn_numberLength").value);
+
+            ctx.beginPath();
+
+            let centerx = canvas.width / 2;
+            let centery = canvas.height / 2;
+            let j = 0, i = 0, k = 0;
+
+            let finalNumber = calculateFinalNumber(numbLength, canvas.width, canvas.height, centerx, centery);
+            numbLength = finalNumber;
+            InitNumberArray();
+            document.getElementById("gameZone").innerHTML = '';
+            document.getElementById("vn_number").innerHTML = '1';
+
+            for (j = 0, i = j + 1; j < numbLength || k < numbLength; j++, i = j + 1) {
+                let c = RandCircle(i, centerx, centery, numberArray[k], zoomBoard, cR);
+
+                if (c != null) {
+                    let node = document.createElement("div");
+                    let textnode = document.createTextNode(c.value);
+                    node.appendChild(textnode);
+                    node.classList.add('numberCircle');
+                    // node.setAttribute('background-color', c.color);
+                    node.style.backgroundColor = c.color;
+                    node.style.top = (c.rY + 80) + 'px';
+                    node.style.right = c.rX + 'px';
+                    node.style.width = c.R + 'px';
+                    node.style.height = c.R + 'px';
+                    node.style.lineHeight = c.R + 'px';
+
+                    node.addEventListener('click', function (event) {
+                        // do something
+                        var node = document.getElementById('vn_number');
+
+                        if (this.innerHTML == `${lookNumber}`) {
+                            // this.classList.add('selected');
+                            this.classList.add('hidden');
+                            lookNumber++;
+                            node.innerHTML = lookNumber;
+                            // If the count down is finished, write some text
+                            if (lookNumber > numbLength) {
+                                clearInterval(x);
+                                document.getElementById("vn_timer").innerHTML += ". Finish";
+                            }
+                        }
+
+                    });
+                    document.getElementById("gameZone").appendChild(node);
+                    // mapNumberBall.put(c.getValue(), c);
+                    // drawCircle(ctx, c)
+                    k++;
+                }
+            }
+
+
+        }
+
+        function calculateFinalNumber(numbLength, width, height, centerx, centery) {
+            let numberMax = 0;
+            for (j = 0, i = j + 1; j < numbLength || numberMax < numbLength; j++, i = j + 1) {
+                let c = RandCircle(i, centerx, centery, 0, zoomBoard, cR);
+
+                if (c != null) {
+                    numberMax++;
+                }
+                if (j > numbLength * 1.5) {
+                    return numberMax;
+                }
+            }
+            return numbLength;
+        }
+
 
         function resizeCanvas() {
             canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -116,20 +265,18 @@
 
         function InitNumberArray() {
             let j = 0, i = 0, temp;
-            for (i = 0; i < numberLength; i++) {
+            for (i = 0; i < numbLength; i++) {
                 numberArray[i] = i + 1;
             }
-            for (i = 0; i < numberLength; i++) {
-                j = i + Math.floor(Math.random() * numberLength - i);
+            for (i = 0; i < numbLength; i++) {
+                j = i + Math.floor(Math.random() * numbLength - i);
                 temp = numberArray[i];
                 numberArray[i] = numberArray[j];
                 numberArray[j] = temp;
             }
-
         }
 
         function drawCircle(ctx, c) {
-            // console.log('>>>c ', c);
             ctx.beginPath();
             ctx.arc(c.rX, c.rY, c.R, 0, 2 * Math.PI, false);
             ctx.fillStyle = c.color;
@@ -140,7 +287,6 @@
             let r = 0, g = 0, b = 0, count = 0;
             randColor = 6;
 
-            // console.log('>>>HSV', h, s, v, h * 24);
 
             try {
                 do {
@@ -286,7 +432,6 @@
             }
 
             let floatV = (r * 256) + "";
-            // console.log('>>>>floatV ', floatV);
             let red = floatV.includes(".") ? floatV.substring(0, floatV.indexOf(".")) : floatV;
             floatV = (g * 256) + "";
             let green = floatV.includes(".") ? floatV.substring(0, floatV.indexOf(".")) : floatV;
@@ -295,12 +440,7 @@
             return `rgb(${red}, ${green}, ${blue})`;
         }
 
-
-        function RandCircle(i, centerx, centery, value, zoom, cR, delta) {
-
-            i += delta;
-            // console.log(">>>>", i, centerx, centery, value, zoom, cR);
-
+        function RandCircle(i, centerx, centery, value, zoom, cR) {
             let goldenRatio_phi = 0.618033988749895;
             let s = 0.5;
             let v = 0.99;
@@ -310,12 +450,10 @@
 
             let x = (Math.cos(theta) * r) * zoom;
             let y = (Math.sin(theta) * r) * zoom;
-            // console.log(">>>>", x, y);
             let rX = Math.round((centerx) + x);
             let rY = Math.round((centery) + y);
 
             if (rX - cR < 0 || rY - cR < 0 || rX + cR > canvas.width || rY + cR > canvas.height) {
-                // console.log(">>>>NUll", i);
                 return null;
             }
 
@@ -327,65 +465,6 @@
                 color: hsv_to_rgb_By_Int(Math.random(), s, v)
             };
             return c;
-        }
-
-        ctx.beginPath();
-
-
-        let centerx = canvas.width / 2;
-        let centery = canvas.height / 2;
-        let j = 0, i = 0, k = 0;
-
-        InitNumberArray();
-
-        let delta = 0;
-        for (j = 0, i = j + 1; j < numberLength || k < numberLength; j++, i = j + 1) {
-            let c = RandCircle(i, centerx, centery, numberArray[k], zoomBoard, cR, delta);
-
-            if (c != null) {
-                let node = document.createElement("div");
-                let textnode = document.createTextNode(c.value);
-                node.appendChild(textnode);
-                node.classList.add('numberCircle');
-                // node.setAttribute('background-color', c.color);
-                node.style.backgroundColor = c.color;
-                node.style.top = (c.rY + 80) + 'px';
-                node.style.right = c.rX + 'px';
-                node.style.width = c.R + 'px';
-                node.style.height = c.R + 'px';
-                node.style.lineHeight = c.R + 'px';
-
-                node.addEventListener('click', function (event) {
-                    // do something
-                    // console.log('>>>>', this.innerHTML);
-                    var node = document.getElementById('vn_number');
-
-                    if (this.innerHTML == `${lookNumber}`) {
-                        // this.classList.add('selected');
-                        this.classList.add('hidden');
-                        lookNumber++;
-                        node.innerHTML = lookNumber;
-                        // If the count down is finished, write some text
-                        if (lookNumber > numberLength) {
-                            clearInterval(x);
-                            document.getElementById("vn_timer").innerHTML += "Finish";
-                        }
-                    }
-
-                });
-                document.getElementById("gameZone").appendChild(node);
-                // mapNumberBall.put(c.getValue(), c);
-                // drawCircle(ctx, c)
-                k++;
-            }
-            else {
-                delta++;
-                console.log('>>>>c is null', i);
-            }
-            if (j > numberLength * 10) {
-                break;
-            }
-
         }
 
     </script>
