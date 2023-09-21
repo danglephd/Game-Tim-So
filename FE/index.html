@@ -138,10 +138,44 @@
         let zoomBoard = 40;
         let numbLength = 200;
         let cR = 40;
+        let font_size = 40;
+
+        initBoard();
+
         const canvas = document.getElementById("myCanvas");
         let numberArray = [];
         let x = null;
         let start = new Date().getTime();
+
+        function initBoard() {
+            if (localStorage.getItem("zoomBoard") === null) {
+                console.log(">>>no zoomBoard");
+            } else {
+                zoomBoard = localStorage.getItem("zoomBoard");
+            }
+
+            if (localStorage.getItem("numbLength") === null) {
+                console.log(">>>no vn_numberLength");
+            } else {
+                numbLength = localStorage.getItem("numbLength");
+            }
+
+            if (localStorage.getItem("cR") === null) {
+                console.log(">>>no cR");
+            } else {
+                cR = localStorage.getItem("cR");
+            }
+            
+            if (localStorage.getItem("font-size") === null) {
+                console.log(">>>font-size");
+            } else {
+                font_size = localStorage.getItem("font-size");
+            }
+            document.getElementById("cR").value = cR;
+            document.getElementById("vn_numberLength").value = numbLength;
+            document.getElementById("zoomBoard").value = zoomBoard;
+            document.getElementById("font-size").value = font_size;
+        }
 
         function gameTimer() {
 
@@ -174,6 +208,12 @@
             document.getElementById("vn_timer").innerHTML = `00:00:00`;
             document.getElementById("vn_number").innerHTML = '';
             Init();
+
+            localStorage.setItem("zoomBoard", parseInt(document.getElementById("zoomBoard").value));
+            localStorage.setItem("numbLength", parseInt(document.getElementById("vn_numberLength").value));
+            localStorage.setItem("cR", parseInt(document.getElementById("cR").value));
+            localStorage.setItem("font-size", document.getElementById("font-size").value);
+
             if (x) {
                 clearInterval(x);
             }
@@ -268,7 +308,6 @@
             return numbLength;
         }
 
-
         function resizeCanvas() {
             canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
             canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -302,7 +341,6 @@
         function hsv_to_rgb_By_Int(h, s, v) {
             let r = 0, g = 0, b = 0, count = 0;
             randColor = 6;
-
 
             try {
                 do {
